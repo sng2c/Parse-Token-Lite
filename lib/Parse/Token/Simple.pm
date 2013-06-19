@@ -4,7 +4,20 @@ package Parse::Token::Simple;
 
 use Moo;
 # VERSION
-# ABSTRACT: Simply parse String into tokens with rules which is similar to Lex.
+# ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
+has rules=> ( is=>'rw' );
+
+sub from{
+
+}
+
+sub nextToken{
+
+}
+
+sub eof{
+
+}
 
 1;

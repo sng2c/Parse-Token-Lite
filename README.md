@@ -1,6 +1,6 @@
 # NAME
 
-Parse::Token::Simple - Simply parse String into tokens with rules which is similar to Lex.
+Parse::Token::Simple - Simply parse String into tokens with rules which are similar to Lex.
 
 # VERSION
 
