@@ -10,6 +10,7 @@ BEGIN{
 
 
 my @rules = (
+	['WORLD'=>qr/world/],
 	['CHR'=>qr/./],
 );
 
@@ -42,21 +43,8 @@ is ($r[1], 'o');
 is ($r[1], ' ');
 
 @r = $lexer->nextToken;
-is ($r[1], 'w');
-
-@r = $lexer->nextToken;
-is ($r[1], 'o');
-
-@r = $lexer->nextToken;
-is ($r[1], 'r');
-
-@r = $lexer->nextToken;
-is ($r[1], 'l');
-
-is $lexer->eof,0,'check EOF';
-
-@r = $lexer->nextToken;
-is ($r[1], 'd');
+is ($r[0], 'WORLD');
+is ($r[1], 'world');
 
 is $lexer->eof,1,'check EOF';
 
