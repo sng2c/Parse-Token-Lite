@@ -22,7 +22,7 @@ sub nextToken{
     my $self = shift;
     foreach my $rule ( @{$self->rules} ){
         my ($tag, $pat, $funcref) = @{$rule};
-        my $matched = $self->data =~ m/^$pat/g;
+        my $matched = $self->data =~ m/^$pat/;
         if( $matched ){
             $self->data($');
 			my @funcret;
