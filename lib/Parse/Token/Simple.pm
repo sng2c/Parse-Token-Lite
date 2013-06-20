@@ -7,37 +7,37 @@ use Moo;
 # ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
 has rules   => ( is=>'rw' );
-has data    => ( is=>'rw' );
+has data	=> ( is=>'rw' );
 has state	=> ( is=>'ro', default=>sub{ [] } );
 sub from{
 	my $self = shift;
 	my $data = shift;
-    
-    $self->data($data);
-    
-    return 1;
+	
+	$self->data($data);
+	
+	return 1;
 }
 
 sub nextToken{
-    my $self = shift;
-    foreach my $rule ( @{$self->rules} ){
-        my ($tag, $pat, $funcref) = @{$rule};
-        my $matched = $self->data =~ m/^$pat/;
-        if( $matched ){
-            $self->data($');
+	my $self = shift;
+	foreach my $rule ( @{$self->rules} ){
+		my ($tag, $pat, $funcref) = @{$rule};
+		my $matched = $self->data =~ m/^$pat/;
+		if( $matched ){
+			$self->data($');
 			my @funcret;
-            if( $funcref ){
-                @funcret = ($funcref->($self,$tag,$&));
-            }
-            return $tag,$&,@funcret;
-        }
-    }
-    die "not matched for first of '".substr($self->data,0,5)."..'";
+			if( $funcref ){
+				@funcret = ($funcref->($self,$tag,$&));
+			}
+			return $tag,$&,@funcret;
+		}
+	}
+	die "not matched for first of '".substr($self->data,0,5)."..'";
 }
 
 sub eof{
-    my $self = shift;
-    return length($self->data)?0:1;
+	my $self = shift;
+	return length($self->data)?0:1;
 }
 
 sub start{
