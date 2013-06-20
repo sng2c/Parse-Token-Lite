@@ -8,7 +8,6 @@ version 0.001
 
 # SYNOPSIS
 
-	use lib './lib';
 	use Parse::Token::Simple;
 
 	my @rules = (
