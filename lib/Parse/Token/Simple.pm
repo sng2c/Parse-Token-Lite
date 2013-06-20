@@ -51,7 +51,7 @@ sub BUILD{
 		my $state = '';
 		my $state_action = '';
 
-		if( $tag =~ /(.+):(.*)([<>].+)/ ){
+		if( $tag =~ /(.+):(.*?)([<>].+)/ ){
 			$state = $1;
 			$tag = $2;
 			$state_action = $3;
@@ -64,7 +64,7 @@ sub BUILD{
 			$state = $1;
 			$tag = $2;
 		}
-		#dd "state:$state, tag:$tag, action:$state_action";
+		#dd "!!!!! state:$state, tag:$tag, action:$state_action";
 		push(@rulemap,[$state,$tag,$state_action,$pat,$funcref]);
 	}
 	$self->_set_rulemap(\@rulemap);
@@ -90,11 +90,16 @@ sub nextToken{
 			$self->_set_data($');
 
 			if( $state_action ){
-				if( $state_action =~ /([<>])(.+)/ ){
-					my $target_action = $1;
-					my $target_state = $2;
-					$self->start($target_state) if($target_action eq '>');
-					$self->end($target_state) if($target_action eq '<');
+				#dd "$state_action";
+				my @states = split(/,/,$state_action);
+				#dd \@states;
+				foreach my $st (@states){
+					if( $st =~ /([<>])(.+)/ ){
+						my $target_action = $1;
+						my $target_state = $2;
+						$self->start($target_state) if($target_action eq '>');
+						$self->end($target_state) if($target_action eq '<');
+					}
 				}
 			}
 
