@@ -6,6 +6,10 @@ Parse::Token::Simple - Simply parse String into tokens with rules which are simi
 
 version 0.001
 
+# SYNOPSIS
+
+    use Parse::Token::Simple;
+
 # AUTHOR
 
 khs <sng2nara@gmail.com>

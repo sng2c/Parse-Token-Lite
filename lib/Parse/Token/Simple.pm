@@ -7,6 +7,14 @@ use Moo;
 # VERSION
 # ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
+=head1 SYNOPSIS
+
+    use Parse::Token::Simple;
+
+
+
+=cut
+
 has rules   => ( is=>'ro', writer=>'set_rules' , required=>1);
 has rulemap => ( is=>'rwp' );
 has data	=> ( is=>'rwp' );
@@ -20,12 +28,12 @@ sub BUILD{
 		my $state = '';
 		my $state_action = '';
 
-		if( $tag =~ /(.+):(.*)([<>]{2}.+)/ ){
+		if( $tag =~ /(.+):(.*)([<>].+)/ ){
 			$state = $1;
 			$tag = $2;
 			$state_action = $3;
 		}
-		elsif( $tag =~ /([<>]{2}.+)/){
+		elsif( $tag =~ /([<>].+)/){
 			$state_action = $tag;
 			$tag = '';
 		}
@@ -59,11 +67,11 @@ sub nextToken{
 			$self->_set_data($');
 
 			if( $state_action ){
-				if( $state_action =~ /([<>]{2})(.+)/ ){
+				if( $state_action =~ /([<>])(.+)/ ){
 					my $target_action = $1;
 					my $target_state = $2;
-					$self->start($target_state) if($target_action eq '>>');
-					$self->end($target_state) if($target_action eq '<<');
+					$self->start($target_state) if($target_action eq '>');
+					$self->end($target_state) if($target_action eq '<');
 				}
 			}
 
