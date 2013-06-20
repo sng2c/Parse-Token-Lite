@@ -56,6 +56,10 @@ sub BUILD{
 			$tag = $2;
 			$state_action = $3;
 		}
+		elsif( $tag =~ /(.+)([<>].+)/ ){
+			$tag = $1;
+			$state_action = $2;
+		}
 		elsif( $tag =~ /([<>].+)/){
 			$state_action = $tag;
 			$tag = '';
