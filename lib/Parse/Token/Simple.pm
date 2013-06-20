@@ -8,7 +8,7 @@ use Moo;
 
 has rules   => ( is=>'rw' );
 has data    => ( is=>'rw' );
-
+has state	=> ( is=>'ro', default=>sub{ [] } );
 sub from{
 	my $self = shift;
 	my $data = shift;
@@ -25,10 +25,11 @@ sub nextToken{
         my $matched = $self->data =~ m/^$pat/g;
         if( $matched ){
             $self->data($');
+			my @funcret;
             if( $funcref ){
-                $funcref->($tag,$&);
+                @funcret = ($funcref->($self,$tag,$&));
             }
-            return $tag,$&;
+            return $tag,$&,@funcret;
         }
     }
     die "not matched for first of '".substr($self->data,0,5)."..'";
@@ -39,4 +40,15 @@ sub eof{
     return length($self->data)?0:1;
 }
 
+sub start{
+	my $self = shift;
+	my $state = shift;
+	push(@{$self->state}, $state);
+}
+
+sub end{
+	my $self = shift;
+	my $state = shift;
+	return pop(@{$self->state});
+}
 1;
