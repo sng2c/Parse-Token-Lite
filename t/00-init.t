@@ -13,6 +13,12 @@ my @rules = (
 	['CHR'=>qr/./],
 );
 
+eval{
+my $lexer_bad = Parse::Token::Simple->new();
+};
+ok( $@ =~/Missing required arguments: rules/ , 'Required ARG' );
+
+
 my $lexer = Parse::Token::Simple->new(rules=>\@rules);
 eval{ 
 	$lexer->from("hello world");

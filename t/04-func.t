@@ -31,12 +31,12 @@ fail('Check Implemented') if $@;
 my @r;
 
 @r = $lexer->nextToken;
-is $r[2]->{var},'$a';
-is $r[2]->{val},'2';
+is $r[3]->{var},'$a';
+is $r[3]->{val},'2';
 
 @r = $lexer->nextToken;
-is $r[2]->{var},'$b';
-is $r[2]->{val},'3';
+is $r[3]->{var},'$b';
+is $r[3]->{val},'3';
 
 is $lexer->eof,1,'check EOF';
 
