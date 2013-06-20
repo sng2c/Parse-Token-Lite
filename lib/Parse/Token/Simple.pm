@@ -9,7 +9,6 @@ use Moo;
 
 =head1 SYNOPSIS
 
-	use lib './lib';
 	use Parse::Token::Simple;
 
 	my @rules = (
