@@ -38,6 +38,7 @@ Results are
 
 =cut
 
+
 has rules   => ( is=>'ro', writer=>'set_rules' , required=>1);
 has rulemap => ( is=>'rwp' );
 has data	=> ( is=>'rwp' );
