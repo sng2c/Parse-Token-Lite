@@ -9,14 +9,14 @@ BEGIN{
 }
 
 
-my $text = q{<% $a = 1 %> $b = 1};
+my $text = q{<% $a=1 %> $b = 1};
 
 my @rules = (
-	['PLACEHOLDER+:'         =>qr{<%}],
-	['VAR+:VAR'             =>qr{\$\w+\s*=\s*}],
-	['VAR-:VAL'             =>qr{\w+} ],
+	['>>PLACEHOLDER'         =>qr{<%}],
+	['PLACEHOLDER:VAR>>VAR' =>qr{\$\w+\s*=\s*}],
+	['VAR:VAL<<VAR'             =>qr{\w+} => sub{} ],
 	['PLACEHOLDER:WS'       =>qr{\s+}],
-	['PLACEHOLDER-:'         =>qr{\%>}],
+	['PLACEHOLDER:<<PLACEHOLDER'         =>qr{\%>}],
 	[NL=>qw{[\n]}],
 	[REST=>qw{.*}],
 );
@@ -27,9 +27,9 @@ $lexer->from($text);
 my @token;
 
 @token = $lexer->nextToken;
-is( $token[0], 'PLACEHOLDER:');
+is( $token[0], '');
 is( $token[1], '<%');
-is( $token[2], '+');
+is( $token[2], '>>PLACEHOLDER');
 
 is( $lexer->state, 'PLACEHOLDER', 'Check State');
 
@@ -39,16 +39,16 @@ is( $token[1], ' ');
 is( $token[2], '');
 
 @token = $lexer->nextToken;
-is( $token[0], 'VAR:VAR');
-is( $token[1], '$a = ');
-is( $token[2], '+');
+is( $token[0], 'PLACEHOLDER:VAR');
+is( $token[1], '$a=');
+is( $token[2], '>>VAR');
 
 is( $lexer->state, 'VAR', 'Check State');
 
 @token = $lexer->nextToken;
 is( $token[0], 'VAR:VAL');
 is( $token[1], '1');
-is( $token[2], '-');
+is( $token[2], '<<VAR');
 
 @token = $lexer->nextToken;
 is( $token[0], 'PLACEHOLDER:WS');
@@ -58,7 +58,7 @@ is( $token[2], '');
 @token = $lexer->nextToken;
 is( $token[0], 'PLACEHOLDER:');
 is( $token[1], '%>');
-is( $token[2], '-');
+is( $token[2], '<<PLACEHOLDER');
 
 is( $lexer->state, '', 'state check');
 

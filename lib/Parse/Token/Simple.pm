@@ -19,14 +19,22 @@ sub BUILD{
 		my ($tag, $pat, $funcref) = @{$rule};
 		my $state = '';
 		my $state_action = '';
-		if( $tag =~ /:([^:]*)/ ){
-			$state = $`;
-			$tag = $1;
-			if( $state =~ s/([+-]?)$// ){
-				$state_action = $1;
-			}
+
+		if( $tag =~ /(.+):(.*)([<>]{2}.+)/ ){
+			$state = $1;
+			$tag = $2;
+			$state_action = $3;
 		}
-		push(@rulemap,[$state,$state_action,$tag,$pat,$funcref]);
+		elsif( $tag =~ /([<>]{2}.+)/){
+			$state_action = $tag;
+			$tag = '';
+		}
+		elsif( $tag =~ /(.+):(.*)/ ){
+			$state = $1;
+			$tag = $2;
+		}
+		#dd "state:$state, tag:$tag, action:$state_action";
+		push(@rulemap,[$state,$tag,$state_action,$pat,$funcref]);
 	}
 	$self->_set_rulemap(\@rulemap);
 }
@@ -43,18 +51,30 @@ sub from{
 sub nextToken{
 	my $self = shift;
 	foreach my $rule ( @{$self->rulemap} ){
-		my ($state, $state_action, $tag, $pat, $funcref) = @{$rule};
+		my ($state, $tag, $state_action, $pat, $funcref) = @{$rule};
+		next if( $state ne $self->state );
+		#dd "LOOP $state $tag $state_action";
 		my $matched = $self->data =~ m/^$pat/;
-		next if( $state ne $self->state && $state_action ne '+' );
 		if( $matched ){
 			$self->_set_data($');
+
+			if( $state_action ){
+				if( $state_action =~ /([<>]{2})(.+)/ ){
+					my $target_action = $1;
+					my $target_state = $2;
+					$self->start($target_state) if($target_action eq '>>');
+					$self->end($target_state) if($target_action eq '<<');
+				}
+			}
+
+			my @state = ($tag);
+			unshift(@state,$state) if( $state );
+			my $state_tag = join(':',@state);
 			my @funcret;
 			if( $funcref ){
-				@funcret = ($funcref->($self,$tag,$&));
+				@funcret = ($funcref->($self,$state_tag,$&,$state_action));
 			}
-			$self->start($state) if($state_action eq '+');
-			$self->end($state) if($state_action eq '-');
-			return $state?"$state:$tag":$tag,$&,$state_action,@funcret;
+			return $state_tag,$&,$state_action,@funcret;
 		}
 	}
 	die "not matched for first of '".substr($self->data,0,5)."..'";
@@ -68,12 +88,14 @@ sub eof{
 sub start{
 	my $self = shift;
 	my $state = shift;
+	#dd ">>> START $state";
 	push(@{$self->state_stack}, $state);
 }
 
 sub end{
 	my $self = shift;
 	my $state = shift;
+	#dd "<<< STOP  $state";
 	return pop(@{$self->state_stack});
 }
 
