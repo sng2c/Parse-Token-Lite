@@ -84,13 +84,20 @@ sub from{
 	return 1;
 }
 
+sub parse{
+	my $self = shift;
+	while(!$self->eof){
+		$self->nextToken;
+	}
+}
+
 sub nextToken{
 	my $self = shift;
 	foreach my $rule ( @{$self->rulemap} ){
 		my ($state, $tag, $state_action, $pat, $funcref) = @{$rule};
 		next if( $state ne $self->state );
 		#dd "LOOP $state $tag $state_action";
-		my $matched = $self->data =~ m/^$pat/;
+		my $matched = $self->data =~ m/^$pat/s;
 		if( $matched ){
 			$self->_set_data($');
 
