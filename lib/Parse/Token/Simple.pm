@@ -3,8 +3,12 @@ use Moo;
 has name=>(is=>'rw');
 has re=>(is=>'rw');
 has func=>(is=>'rw');
-has push_state=>(is=>'rw');
-has pop_state=>(is=>'rw');
+has state_actions=>(is=>'rw');
+
+package Parse::Token::Simple::Token;
+use Moo;
+has data=>(is=>'rw');
+has rule=>(is=>'rw');
 
 package Parse::Token::Simple;
 use Data::Dump;
@@ -16,18 +20,18 @@ use Moo;
 
 	use Parse::Token::Simple;
 
-	my @rules = (
-		[ NUM => qr/\d[\d,\.]*/ ],
-		[ STR => qr/\w+/ ],
-		[ SPC => qr/\s+/ ],
-		[ ERR => qr/.*/ ],
+	my %rules = (
+		{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
+		{ name=>'STR', re=> qr/\w+/ },
+		{ name=>'SPC', re=> qr/\s+/ },
+		{ name=>'ERR', re=> qr/.*/ },
 	);
 
-	my $parser = Parse::Token::Simple->new(rules=>\@rules);
+	my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
 	$parser->from("This costs 1,000won.");
 	while( ! $parser->eof ){
-		my($state_tag, $token) = $parser->nextToken;
-		print "$state_tag -->$token<--\n";
+		my ($token,@extra) = $parser->nextToken;
+		print $token->rule->name." --> ".$token->data."<--\n";
 	}
 
 Results are
@@ -84,14 +88,25 @@ sub nextToken{
 		if( $matched ){
 			$self->_set_data($');
 
-		    map{ $self->stop($_) } (@{$rule->pop_state}) if $rule->pop_state;
-		    map{ $self->start($_) } (@{$rule->push_state}) if $rule->push_state;
+		    map{
+                if( $_ =~ /([+-])(.+)/ ){
+                    if( $1 eq '+' ){
+                        $self->start($2);
+                    }
+                    else{
+                        $self->end($2);
+                    }
+                }
+                else{
+                    die "invalid state_action '$_'";
+                }
+            } (@{$rule->state_actions}) if $rule->state_actions;
 
 			my @funcret;
 			if( $rule->func ){
-				@funcret = $rule->func->($self,$rule);
+				@funcret = $rule->func->($self,$rule,$&);
 			}
-			return $rule,$&,@funcret;
+			return Parse::Token::Simple::Token->new(rule=>$rule,data=>$&),@funcret;
 		}
 	}
 	die "not matched for first of '".substr($self->data,0,5)."..'";

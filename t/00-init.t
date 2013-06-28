@@ -30,40 +30,40 @@ fail('Check Implemented') if $@;
 my @r;
 
 @r = $lexer->nextToken;
-is ($r[0]->name, 'CHR');
-is ($r[1], 'h');
+is ($r[0]->rule->name, 'CHR');
+is ($r[0]->data, 'h');
 
 @r = $lexer->nextToken;
-is ($r[1], 'e');
+is ($r[0]->data, 'e');
 
 @r = $lexer->nextToken;
-is ($r[1], 'l');
+is ($r[0]->data, 'l');
 
 @r = $lexer->nextToken;
-is ($r[1], 'l');
+is ($r[0]->data, 'l');
 
 @r = $lexer->nextToken;
-is ($r[1], 'o');
+is ($r[0]->data, 'o');
 
 @r = $lexer->nextToken;
-is ($r[1], ' ');
+is ($r[0]->data, ' ');
 
 @r = $lexer->nextToken;
-is ($r[1], 'w');
+is ($r[0]->data, 'w');
 
 @r = $lexer->nextToken;
-is ($r[1], 'o');
+is ($r[0]->data, 'o');
 
 @r = $lexer->nextToken;
-is ($r[1], 'r');
+is ($r[0]->data, 'r');
 
 @r = $lexer->nextToken;
-is ($r[1], 'l');
+is ($r[0]->data, 'l');
 
 is $lexer->eof,0,'check EOF';
 
 @r = $lexer->nextToken;
-is ($r[1], 'd');
+is ($r[0]->data, 'd');
 
 is $lexer->eof,1,'check EOF';
 

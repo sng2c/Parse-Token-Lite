@@ -33,10 +33,10 @@ my @token;
 my $url;
 while(!$lexer->eof){
     @token = $lexer->nextToken;
-    if( $token[0]->name eq 'URL'){
-        $url = $token[1];
+    if( $token[0]->rule->name eq 'URL'){
+        $url = $token[0]->data;
     }
-    print $token[0]->name."\t: '$token[1]'\n";
+    print $token[0]->rule->name."\t: '".$token[0]->data."'\n";
 }
 is( $url, 'http://mabook.com', 'detect URL');
 done_testing;

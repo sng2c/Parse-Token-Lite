@@ -26,27 +26,27 @@ fail('Check Implemented') if $@;
 my @r;
 
 @r = $lexer->nextToken;
-is ($r[0]->name, 'CHR');
-is ($r[1], 'h');
+is ($r[0]->rule->name, 'CHR');
+is ($r[0]->data, 'h');
 
 @r = $lexer->nextToken;
-is ($r[1], 'e');
+is ($r[0]->data, 'e');
 
 @r = $lexer->nextToken;
-is ($r[1], 'l');
+is ($r[0]->data, 'l');
 
 @r = $lexer->nextToken;
-is ($r[1], 'l');
+is ($r[0]->data, 'l');
 
 @r = $lexer->nextToken;
-is ($r[1], 'o');
+is ($r[0]->data, 'o');
 
 @r = $lexer->nextToken;
-is ($r[1], ' ');
+is ($r[0]->data, ' ');
 
 @r = $lexer->nextToken;
-is ($r[0]->name, 'WORLD');
-is ($r[1], 'world');
+is ($r[0]->rule->name, 'WORLD');
+is ($r[0]->data, 'world');
 
 is $lexer->eof,1,'check EOF';
 
