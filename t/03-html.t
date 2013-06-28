@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use lib qw(./lib);
-use Test::More; # tests => 1;                      # last test to print
+use Test::More tests => 2;                      # last test to print
 use Data::Printer;
 
 BEGIN{
@@ -9,12 +9,14 @@ BEGIN{
 }
 
 
-my @rules = (
-	['URL'=>qr@http://[a-zA-Z-_\%0-9/#=&\?\.]+@],
-    ['WS'=>qr/\s+/],
-    ['DELI'=>qr@["'<>/=]+@],
-    ['WORD'=>qr@[^"'<>/=\s]+@],
-);
+my $rules = {
+    MAIN=>[
+        {name=>'URL',re=>qr@http://[a-zA-Z-_\%0-9/#=&\?\.]+@},
+        {name=>'WS',re=>qr/\s+/},
+        {name=>'DELI',re=>qr@["'<>/=]+@},
+        {name=>'WORD',re=>qr@[^"'<>/=\s]+@},
+    ]
+};
 
 my $html = <<END;
 <html>
@@ -24,17 +26,17 @@ my $html = <<END;
 </html>
 END
 
-my $lexer = Parse::Token::Simple->new(rules=>\@rules);
+my $lexer = Parse::Token::Simple->new(rulemap=>$rules);
 $lexer->from($html);
 my @token;
 
 my $url;
 while(!$lexer->eof){
     @token = $lexer->nextToken;
-    if( $token[0] eq 'URL'){
+    if( $token[0]->name eq 'URL'){
         $url = $token[1];
     }
-    print "$token[0]\t: '$token[1]'\n";
+    print $token[0]->name."\t: '$token[1]'\n";
 }
 is( $url, 'http://mabook.com', 'detect URL');
 done_testing;

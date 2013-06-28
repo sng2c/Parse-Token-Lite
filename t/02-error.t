@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use lib qw(./lib);
-use Test::More; # tests => 1;                      # last test to print
+use Test::More tests => 2;                      # last test to print
 use Data::Printer;
 
 BEGIN{
@@ -9,11 +9,11 @@ BEGIN{
 }
 
 
-my @rules = (
-	['WORLD'=>qr/world/],
-);
+my $rules = {
+	MAIN=>[{name=>'WORLD',re=>qr/world/}],
+};
 
-my $lexer = Parse::Token::Simple->new(rules=>\@rules);
+my $lexer = Parse::Token::Simple->new(rulemap=>$rules);
 eval{ 
 	$lexer->from("hello world");
 };

@@ -1,7 +1,12 @@
-use strict;
-use warnings;
-package Parse::Token::Simple;
+package Parse::Token::Simple::Rule;
+use Moo;
+has name=>(is=>'rw');
+has re=>(is=>'rw');
+has func=>(is=>'rw');
+has push_state=>(is=>'rw');
+has pop_state=>(is=>'rw');
 
+package Parse::Token::Simple;
 use Data::Dump;
 use Moo;
 # VERSION
@@ -38,41 +43,16 @@ Results are
 
 =cut
 
-
-has rules   => ( is=>'ro', writer=>'set_rules' , required=>1);
-has rulemap => ( is=>'rwp' );
+has rulemap => ( is=>'rw', required=>1 );
 has data	=> ( is=>'rwp' );
-has state_stack	=> ( is=>'rwp', default=>sub{[]} );
+has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 
 sub BUILD{
 	my $self = shift;
-	my @rulemap;
-	foreach my $rule (@{$self->rules}){
-		my ($tag, $pat, $funcref) = @{$rule};
-		my $state = '';
-		my $state_action = '';
-
-		if( $tag =~ /(.+):(.*?)([<>].+)/ ){
-			$state = $1;
-			$tag = $2;
-			$state_action = $3;
-		}
-		elsif( $tag =~ /(.+)([<>].+)/ ){
-			$tag = $1;
-			$state_action = $2;
-		}
-		elsif( $tag =~ /([<>].+)/){
-			$state_action = $tag;
-			$tag = '';
-		}
-		elsif( $tag =~ /(.+):(.*)/ ){
-			$state = $1;
-			$tag = $2;
-		}
-		#dd "!!!!! state:$state, tag:$tag, action:$state_action";
-		push(@rulemap,[$state,$tag,$state_action,$pat,$funcref]);
+    my %rulemap;
+	foreach my $key (keys %{$self->rulemap}){
+        $self->rulemap->{$key} = [map{ Parse::Token::Simple::Rule->new($_) }@{$self->rulemap->{$key}}];
 	}
-	$self->_set_rulemap(\@rulemap);
 }
 
 sub from{
@@ -90,39 +70,28 @@ sub parse{
 		$self->nextToken;
 	}
 }
-
+sub currentRules{
+    my $self = shift;
+    return $self->rulemap->{$self->state};
+}
 sub nextToken{
 	my $self = shift;
-	foreach my $rule ( @{$self->rulemap} ){
-		my ($state, $tag, $state_action, $pat, $funcref) = @{$rule};
-		next if( $state ne $self->state );
+ 
+	foreach my $rule ( @{$self->currentRules} ){
 		#dd "LOOP $state $tag $state_action";
+        my $pat = $rule->re;
 		my $matched = $self->data =~ m/^$pat/s;
 		if( $matched ){
 			$self->_set_data($');
 
-			if( $state_action ){
-				#dd "$state_action";
-				my @states = split(/,/,$state_action);
-				#dd \@states;
-				foreach my $st (@states){
-					if( $st =~ /([<>])(.+)/ ){
-						my $target_action = $1;
-						my $target_state = $2;
-						$self->start($target_state) if($target_action eq '>');
-						$self->end($target_state) if($target_action eq '<');
-					}
-				}
-			}
+		    map{ $self->stop($_) } (@{$rule->pop_state}) if $rule->pop_state;
+		    map{ $self->start($_) } (@{$rule->push_state}) if $rule->push_state;
 
-			my @state = ($tag);
-			unshift(@state,$state) if( $state );
-			my $state_tag = join(':',@state);
 			my @funcret;
-			if( $funcref ){
-				@funcret = ($funcref->($self,$state_tag,$&,$state_action));
+			if( $rule->func ){
+				@funcret = $rule->func->($self,$rule);
 			}
-			return $state_tag,$&,$state_action,@funcret;
+			return $rule,$&,@funcret;
 		}
 	}
 	die "not matched for first of '".substr($self->data,0,5)."..'";
