@@ -2,35 +2,45 @@
 use lib './lib','../lib';
 use Parse::Token::Simple;
 
-my @rules = (
-	[ 'OPENTAG>TAG'	=> qr/<\w+/ ],
-	[ 'CLOSETAG'	=> qr@</[^>]+?>@ ],
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init($ERROR);
 
-	[ 'TAG:SPC' => qr/\s+/ ],
-	[ 'TAG:NEW' => qr/\n+/ ],
-	
-	[ 'TAG:LEFT>RIGHT'=> qr/\w+\s*=/ ],
-	
-	[ 'RIGHT:>Q2' => qr/"/ ],
-	[ 'Q2:VAL' => qr/[^"]+/ ],
-	[ 'Q2:<Q2,<RIGHT' => qr/"/],
+my %rules = (
+    MAIN=>[
+	    { name=>'OPENTAG', state=>['+TAG'], re=> qr/<\w+/ },
+	    { name=>'CLOSETAG',	re=> qr@</[^>]+?>@ },
+        { name=>'SPC' ,re=> qr/[\n\s]+/ },
+        { name=>'STR' ,re=> qr/\w+/ },
+        { name=>'STR2' ,re=> qr/\W+/ },
+    ],
+    TAG=>[
+        { name=>'SPC', re=>qr/\s+/ },
+        { name=>'NEW', re=>qr/\n+/ },
+        { name=>'LEFT',state=>['+RIGHT'], re=>qr/\w+\s*=/ },
+	    
+        { name=>'TAGOUT',state=>['-TAG'], re=>qr/>/ },
+    ],
+	RIGHT=>[
+    	{ name=>'RIGHT', state=>['+Q2'] , re=> qr/"/ },
+	    { name=>'RIGHT', state=>['+Q1'] , re=> qr/'/ },
+    ],
+    Q2=>[
+        { name=>'VAL', re => qr/[^"]+/ },
+        { state=>['-Q2','-RIGHT'], re => qr/"/},
+    ],
+    Q1=>[
+        { name=>'VAL', re => qr/[^']+/ },
+        { state=>['-Q1','-RIGHT'], re => qr/'/},
+    ],
 
-	[ 'RIGHT:>Q1' => qr/'/ ],
-	[ 'Q1:VAL' => qr/[^']+/ ],
-	[ 'Q1:<Q1,<RIGHT' => qr/'/],
-
-	[ 'TAG:TAGOUT<TAG'	=> qr/>/ ],
 	
-	[ SPC => qr/[\n\s]+/ ],
-	[ STR => qr/\w+/ ],
-	[ STR2 => qr/\W+/ ],
 );
 
 my $html = <<END;
 <html>
 	<body>
 		<a href="http://www.daum.net">daum</a>
-		<a href='http://www.daum.net'>daum</a>
+		ra href='http://www.daum.net'>daum</a>
 		<a href='http://www.daum.net/"abc"'>daum</a>
 		<a href="http://www.daum.net/'abc'">daum</a>
 		<a href="http://www.daum.net/abc">daum</a>
@@ -38,9 +48,11 @@ my $html = <<END;
 </html>
 END
 
-my $parser = Parse::Token::Simple->new(rules=>\@rules);
+my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
 $parser->from($html);
 while( ! $parser->eof ){
-    my($state_tag, $token) = $parser->nextToken;
-    print "[$state_tag]\n$token \n" if $state_tag !~ /SPC/;
+    my $token = $parser->nextToken;
+    my $token_name = $token->rule->name;
+    my $data = $token->data;
+    print "[$token_name]\n$data \n" if $token_name !~ /SPC/;
 }

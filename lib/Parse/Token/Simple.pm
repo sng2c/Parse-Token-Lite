@@ -3,7 +3,7 @@ use Moo;
 has name=>(is=>'rw');
 has re=>(is=>'rw');
 has func=>(is=>'rw');
-has state_actions=>(is=>'rw');
+has state=>(is=>'rw');
 
 package Parse::Token::Simple::Token;
 use Moo;
@@ -11,8 +11,10 @@ has data=>(is=>'rw');
 has rule=>(is=>'rw');
 
 package Parse::Token::Simple;
-use Data::Dump;
 use Moo;
+use Data::Dump;
+use Log::Log4perl qw(:easy);
+Log::Log4perl->easy_init($ERROR);
 # VERSION
 # ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
@@ -82,7 +84,6 @@ sub nextToken{
 	my $self = shift;
  
 	foreach my $rule ( @{$self->currentRules} ){
-		#dd "LOOP $state $tag $state_action";
         my $pat = $rule->re;
 		my $matched = $self->data =~ m/^$pat/s;
 		if( $matched ){
@@ -100,13 +101,21 @@ sub nextToken{
                 else{
                     die "invalid state_action '$_'";
                 }
-            } (@{$rule->state_actions}) if $rule->state_actions;
-
+            } (@{$rule->state}) if $rule->state;
+			
+            my $ret = Parse::Token::Simple::Token->new(rule=>$rule,data=>$&);
+            
 			my @funcret;
 			if( $rule->func ){
-				@funcret = $rule->func->($self,$rule,$&);
+				@funcret = $rule->func->($self,$ret);
 			}
-			return Parse::Token::Simple::Token->new(rule=>$rule,data=>$&),@funcret;
+
+            if( wantarray ){
+                return $ret,@funcret;
+            }
+            else{
+                return $ret;
+            }
 		}
 	}
 	die "not matched for first of '".substr($self->data,0,5)."..'";
@@ -120,14 +129,14 @@ sub eof{
 sub start{
 	my $self = shift;
 	my $state = shift;
-	#dd ">>> START $state";
+	DEBUG ">>> START '$state'";
 	push(@{$self->state_stack}, $state);
 }
 
 sub end{
 	my $self = shift;
 	my $state = shift;
-	#dd "<<< STOP  $state";
+	DEBUG "<<< STOP  '$state'";
 	return pop(@{$self->state_stack});
 }
 

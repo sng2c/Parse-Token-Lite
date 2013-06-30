@@ -2,29 +2,37 @@
 use lib './lib','../lib';
 use Parse::Token::Simple;
 
-my @rules = (
-	[ 'OPENTAG>TAG'	=> qr/<\w+/ ],
-	[ 'CLOSETAG'	=> qr@</[^>]+?>@ ],
+my %rules = (
+    MAIN=>[
+	    { name=>'OPENTAG', state=>['+TAG'], re=> qr/<\w+/ },
+	    { name=>'CLOSETAG',	re=> qr@</[^>]+?>@ },
+        { name=>'SPC' ,re=> qr/[\n\s]+/ },
+        { name=>'STR' ,re=> qr/\w+/ },
+        { name=>'STR2' ,re=> qr/\W+/ },
+    ],
+    TAG=>[
+        { name=>'SPC', re=>qr/\s+/ },
+        { name=>'NEW', re=>qr/\n+/ },
+        { name=>'LEFT',state=>['+RIGHT'], re=>qr/\w+\s*=/ },
+	    
+        { name=>'TAGOUT',state=>['-TAG'], re=>qr/>/ },
+    ],
+	RIGHT=>[
+    	{ name=>'RIGHT', state=>['+Q2'] , re=> qr/"/ },
+	    { name=>'RIGHT', state=>['+Q1'] , re=> qr/'/ },
+    ],
+    Q2=>[
+        { name=>'VAL', re => qr/[^"]+/, func=>\&show},
+        { state=>['-Q2','-RIGHT'], re => qr/"/},
+    ],
+    Q1=>[
+        { name=>'VAL', re => qr/[^']+/, func=>\&show},
+        { state=>['-Q1','-RIGHT'], re => qr/'/},
+    ],
 
-	[ 'TAG:SPC' => qr/\s+/ ],
-	[ 'TAG:NEW' => qr/\n+/ ],
 	
-	[ 'TAG:LEFT>RIGHT'=> qr/\w+\s*=/ ],
-	
-	[ 'RIGHT:>Q2' => qr/"/ ],
-	[ 'Q2:VAL' => qr/[^"]+/ => \&show ],
-	[ 'Q2:<Q2,<RIGHT' => qr/"/],
-
-	[ 'RIGHT:>Q1' => qr/'/ ],
-	[ 'Q1:VAL' => qr/[^']+/ => \&show ],
-	[ 'Q1:<Q1,<RIGHT' => qr/'/],
-
-	[ 'TAG:TAGOUT<TAG'	=> qr/>/ ],
-	
-	[ SPC => qr/[\n\s]+/ ],
-	[ STR => qr/\w+/ ],
-	[ STR2 => qr/\W+/ ],
 );
+
 
 my $html = <<END;
 <html>
@@ -39,10 +47,11 @@ my $html = <<END;
 END
 
 sub show{
-	print "@_\n";
+    my ($parser,$token) = @_;
+	print $token->rule->name." : ".$token->data."\n";
 }
 
-my $parser = Parse::Token::Simple->new(rules=>\@rules);
+my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
 $parser->from($html);
 
 $parser->parse;

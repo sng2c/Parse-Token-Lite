@@ -14,7 +14,8 @@ my %rules = (
 	{name=>'SET', re=>qr/\$\w+\s*=\s*.+?;?/,
      func=>
 		sub{
-			my($lexer,$rule,$matched) = @_;
+			my($lexer,$rule) = @_;
+            my $matched = $rule->data;
 			if( $matched =~ /(.+?)\s*=\s*(.+?);?/ ){
 				return {var=>$1, val=>$2};
 			}

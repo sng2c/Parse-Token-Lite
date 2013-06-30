@@ -2,16 +2,20 @@
 use lib './lib';
 use Parse::Token::Simple;
 
-my @rules = (
-    [ NUM => qr/\d[\d,\.]*/ ],
-    [ STR => qr/\w+/ ],
-    [ SPC => qr/\s+/ ],
-    [ ERR => qr/.*/ ],
+my %rules = (
+    MAIN=>[
+    { name=>NUM, re => qr/\d[\d,\.]*/ },
+    { name=>STR, re => qr/\w+/ },
+    { name=>SPC, re => qr/\s+/ },
+    { name=>ERR, re => qr/.*/ },
+    ]
 );
 
-my $parser = Parse::Token::Simple->new(rules=>\@rules);
+my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
 $parser->from("This costs 1,000won.");
 while( ! $parser->eof ){
-    my($state_tag, $token) = $parser->nextToken;
-    print "$state_tag -->$token<--\n";
+    my($token, @rest) = $parser->nextToken;
+    my $state_tag = $token->rule->name;
+    my $data = $token->data;
+    print "$state_tag -->$data<--\n";
 }
