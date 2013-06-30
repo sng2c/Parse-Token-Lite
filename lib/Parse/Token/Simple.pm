@@ -1,7 +1,7 @@
 package Parse::Token::Simple::Rule;
 use Moo;
 has name=>(is=>'rw');
-has re=>(is=>'rw');
+has re=>(is=>'rw', required=>1);
 has func=>(is=>'rw');
 has state=>(is=>'rw');
 
@@ -15,6 +15,10 @@ use Moo;
 use Data::Dump;
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init($ERROR);
+
+has rulemap => ( is=>'rw', required=>1 );
+has data	=> ( is=>'rwp' );
+has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 # VERSION
 # ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
@@ -49,9 +53,6 @@ Results are
 
 =cut
 
-has rulemap => ( is=>'rw', required=>1 );
-has data	=> ( is=>'rwp' );
-has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 
 sub BUILD{
 	my $self = shift;
