@@ -96,6 +96,16 @@ sub BUILD{
 	}
 }
 
+=head1 METHODS
+
+=head2 from($data_string)
+
+Setting data to parse.
+
+This causes resetting state_stack.
+
+=cut 
+
 sub from{
 	my $self = shift;
 	my $data = shift;
@@ -106,6 +116,15 @@ sub from{
 	return 1;
 }
 
+=head2 parse()
+
+Parse all tokens on Event driven.
+Just call nextToken() during that eof() is not 1.
+
+You should set a callback function at 'func' attribute in 'rulemap' to do something with tokens.
+
+=cut
+
 sub parse{
 	my $self = shift;
 	while(!$self->eof){
@@ -113,10 +132,21 @@ sub parse{
 	}
 }
 
+=head2 currentRules()
+
+Returns an array reference of rules of current state. 
+
+=cut
+
 sub currentRules{
     my $self = shift;
     return $self->rulemap->{$self->state};
 }
+
+=head2 nextToken()
+
+=cut
+
 sub nextToken{
 	my $self = shift;
  

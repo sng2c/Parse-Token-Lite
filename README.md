@@ -72,6 +72,27 @@ If a length of 'data' is 0, eof() returns 1.
 At first time, it contains \['MAIN'\].
 It is reset by from().
 
+# METHODS
+
+## from($data\_string)
+
+Setting data to parse.
+
+This causes resetting state\_stack.
+
+## parse()
+
+Parse all tokens on Event driven.
+Just call nextToken() during that eof() is not 1.
+
+You should set a callback function at 'func' attribute in 'rulemap' to do something with tokens.
+
+## currentRules()
+
+Returns an array reference of rules of current state. 
+
+## nextToken()
+
 # AUTHOR
 
 khs <sng2nara@gmail.com>
