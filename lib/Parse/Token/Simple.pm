@@ -4,9 +4,6 @@ use Data::Dump;
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init($ERROR);
 
-has rulemap => ( is=>'rw', required=>1 );
-has data	=> ( is=>'rwp' );
-has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 # VERSION
 # ABSTRACT: Simply parse String into tokens with rules which are similar to Lex.
 
@@ -43,6 +40,53 @@ Results are
 
 =cut
 
+=head1 PROPERTIES
+
+=head2 rulemap
+
+rulemap contains hash refrence of rule objects grouped by STATE.
+rulemap should have 'MAIN' item.
+
+	my %rule = (
+		MAIN => [
+			Parse::Token::Simple::Rule->new(name=>'any', re=>qr/./),
+		],
+	);
+	$parser->rulemap(\%rule);
+
+In constructor, it can be replaced with hash reference descripting attributes of L<Parse::Token::Simple::Rule> class, intead of Rule Object.
+
+	my %rule = (
+		MAIN => [
+			{name=>'any', re=>qr/./}, # ditto
+		],
+	);
+	my $parser = Parse::Token::Simple->new( rulemap=>\%rule );
+
+=cut
+
+has rulemap => ( is=>'rw', default=>sub{return {};});
+
+=head2 data
+
+'data' is set by from() method.
+'data' contains a rest of text which is not processed by nextToken().
+Please remember, 'data' is changing.
+
+If a length of 'data' is 0, eof() returns 1.
+
+=cut
+
+has data	=> ( is=>'rwp' );
+
+=head2 state_stack
+
+At first time, it contains ['MAIN'].
+It is reset by from().
+
+=cut
+
+has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 
 sub BUILD{
 	my $self = shift;
@@ -57,6 +101,7 @@ sub from{
 	my $data = shift;
 	
 	$self->_set_data($data);
+	$self->_set_state_stack(['MAIN']); # reset state.
 	
 	return 1;
 }
@@ -67,6 +112,7 @@ sub parse{
 		$self->nextToken;
 	}
 }
+
 sub currentRules{
     my $self = shift;
     return $self->rulemap->{$self->state};

@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use lib qw(./lib);
-use Test::More tests => 16;                      # last test to print
+use Test::More tests => 15;                      # last test to print
 use Data::Printer;
 
 BEGIN{
@@ -13,12 +13,6 @@ my $rules = {
         {name=>'CHR', re=>qr/./}    
     ],
 };
-
-eval{
-my $lexer_bad = Parse::Token::Simple->new();
-};
-ok( $@ =~/Missing required arguments: rulemap/ , 'Required ARG' );
-
 
 my $lexer = Parse::Token::Simple->new(rulemap=>$rules);
 eval{ 
