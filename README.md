@@ -110,7 +110,8 @@ Push the state on state\_stack.
 Also, this is called by a 'state' definition of [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
 
 ## end()
-=head2 end($state)
+
+## end($state)
 
 Pop the state on state\_stack.
 
