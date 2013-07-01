@@ -4,7 +4,7 @@ Parse::Token::Simple - Simply parse String into tokens with rules which are simi
 
 # VERSION
 
-version 0.100
+version 0.110
 
 # SYNOPSIS
 
@@ -84,10 +84,13 @@ This causes resetting state\_stack.
 
 ## parse($data)
 
+On Scalar context : Returns 1
+On Array context : Returns array of \[[Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token),@return\_values\_of\_callback\].
+
 Parse all tokens on Event driven.
 Just call nextToken() during that eof() is not 1.
 
-$data causes calling from($data).
+Defined $data causes calling from($data).
 
 You should set a callback function at 'func' attribute in 'rulemap' to do something with tokens.
 
@@ -95,13 +98,17 @@ You should set a callback function at 'func' attribute in 'rulemap' to do someth
 
 Returns an array reference of rules of current state. 
 
+See [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
+
 ## nextToken()
 
 On Scalar context : Returns [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) object.
-On Array context : Returns [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) object and return values of callback function defined in current Rule.
+On Array context : Returns ([Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token),@return\_values\_of\_callback).
 
 	my ($token, @ret) = $parser->nextToken;
 	print $token->rule->name . '->' . $token->data . "\n";
+
+See [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) and [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
 
 ## eof()
 
@@ -109,23 +116,57 @@ Returns 1 when no more text is.
 
 ## start($state)
 
-Push the state on state\_stack.
-
-Also, this is called by a 'state' definition of [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
-
 ## end()
 
 ## end($state)
 
-Pop the state on state\_stack.
+Push/Pop the state on state\_stack to implement AUTOMATA.
 
 Also, this is called by a 'state' definition of [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
 
-$state is optional.
+You can set rules as Lexer like.
+
+	my $rulemap = {
+		MAIN => [
+			{ name=>'QUOTE', re=>qr/'/, func=>
+				sub{ 
+					my ($parser,$token) = @_;
+					$parser->start('STATE_QUOTE'); # push
+				}
+			},
+			{ name=>'ANY', re=>qr/.+/ },
+		],
+		STATE_QUOTE => [
+			{ name=>'QUOTE_PAIR', re=>qr/'/, func=>
+				sub{ 
+					my ($parser,$token) = @_;
+					$parser->end('STATE_QUOTE'); # pop
+				}
+			},
+			{ name=>'QUOTED_TEXT', re=>qr/.+/ }
+		],
+	};
+
+You can also do it in simple way.
+
+	my $rulemap = {
+		MAIN => [
+			{ name=>'QUOTE', re=>qr/'/, state=>['+STATE_QUOTE'] }, # push
+			{ name=>'ANY', re=>qr/.+/ },
+		],
+		STATE_QUOTE => [
+			{ name=>'QUOTE_PAIR', re=>qr/'/, state=>['-STATE_QUOTE] }, #pop
+			{ name=>'QUOTED_TEXT', re=>qr/.+/ }
+		],
+	};
 
 ## state()
 
 Returns current state by peeking top of 'state\_stack'.
+
+# SEE ALSO
+
+See [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) and [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
 
 # AUTHOR
 
