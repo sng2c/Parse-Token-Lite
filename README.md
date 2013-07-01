@@ -4,7 +4,7 @@ Parse::Token::Simple - Simply parse String into tokens with rules which are simi
 
 # VERSION
 
-version 0.001
+version 0.100
 
 # SYNOPSIS
 
@@ -36,7 +36,7 @@ Results are
 	STR -->won<--
 	ERR -->.<--
 
-# PROPERTIES
+# ATTRIBUTES
 
 ## rulemap
 
@@ -82,8 +82,12 @@ This causes resetting state\_stack.
 
 ## parse()
 
+## parse($data)
+
 Parse all tokens on Event driven.
 Just call nextToken() during that eof() is not 1.
+
+$data causes calling from($data).
 
 You should set a callback function at 'func' attribute in 'rulemap' to do something with tokens.
 

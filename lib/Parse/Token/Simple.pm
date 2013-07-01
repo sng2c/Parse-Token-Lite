@@ -42,7 +42,7 @@ Results are
 
 =cut
 
-=head1 PROPERTIES
+=head1 ATTRIBUTES
 
 =head2 rulemap
 
@@ -120,8 +120,12 @@ sub from{
 
 =head2 parse()
 
+=head2 parse($data)
+
 Parse all tokens on Event driven.
 Just call nextToken() during that eof() is not 1.
+
+$data causes calling from($data).
 
 You should set a callback function at 'func' attribute in 'rulemap' to do something with tokens.
 
@@ -129,6 +133,9 @@ You should set a callback function at 'func' attribute in 'rulemap' to do someth
 
 sub parse{
 	my $self = shift;
+	my $data = shift;
+	$self->from($data) if defined $data;
+
 	while(!$self->eof){
 		$self->nextToken;
 	}
