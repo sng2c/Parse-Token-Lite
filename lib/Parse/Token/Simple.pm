@@ -2,6 +2,8 @@ package Parse::Token::Simple;
 use Moo;
 use Data::Dump;
 use Log::Log4perl qw(:easy);
+use Parse::Token::Simple::Token;
+use Parse::Token::Simple::Rule;
 Log::Log4perl->easy_init($ERROR);
 
 # VERSION
@@ -251,18 +253,5 @@ sub state{
 	return '' if( @{$self->state_stack} == 0 );
 	return $self->state_stack->[@{$self->state_stack}-1];
 }
-
-package Parse::Token::Simple::Rule;
-use Moo;
-has name=>(is=>'rw');
-has re=>(is=>'rw', required=>1);
-has func=>(is=>'rw');
-has state=>(is=>'rw');
-
-package Parse::Token::Simple::Token;
-use Moo;
-has data=>(is=>'rw');
-has rule=>(is=>'rw');
-
 
 1;
