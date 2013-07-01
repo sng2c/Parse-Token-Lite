@@ -145,6 +145,12 @@ sub currentRules{
 
 =head2 nextToken()
 
+On Scalar context : Returns L<Parse::Token::Simple::Token> object.
+On Array context : Returns L<Parse::Token::Simple::Token> object and return values of callback function defined in current Rule.
+
+	my ($token, @ret) = $parser->nextToken;
+	print $token->rule->name . '->' . $token->data . "\n";
+
 =cut
 
 sub nextToken{
@@ -188,10 +194,25 @@ sub nextToken{
 	die "not matched for first of '".substr($self->data,0,5)."..'";
 }
 
+
+=head2 eof()
+
+Returns 1 when no more text is.
+
+=cut
+
 sub eof{
 	my $self = shift;
 	return length($self->data)?0:1;
 }
+
+=head2 start($state)
+
+Push the state on state_stack.
+
+Also, this is called by a 'state' definition of L<Parse::Token::Simple::Rule>.
+
+=cut
 
 sub start{
 	my $self = shift;
@@ -200,12 +221,29 @@ sub start{
 	push(@{$self->state_stack}, $state);
 }
 
+=head2 end()
+=head2 end($state)
+
+Pop the state on state_stack.
+
+Also, this is called by a 'state' definition of L<Parse::Token::Simple::Rule>.
+
+$state is optional.
+
+=cut
+
 sub end{
 	my $self = shift;
 	my $state = shift;
 	DEBUG "<<< STOP  '$state'";
 	return pop(@{$self->state_stack});
 }
+
+=head2 state()
+
+Returns current state by peeking top of 'state_stack'.
+
+=cut
 
 sub state{
 	my $self = shift;
