@@ -1,15 +1,3 @@
-package Parse::Token::Simple::Rule;
-use Moo;
-has name=>(is=>'rw');
-has re=>(is=>'rw', required=>1);
-has func=>(is=>'rw');
-has state=>(is=>'rw');
-
-package Parse::Token::Simple::Token;
-use Moo;
-has data=>(is=>'rw');
-has rule=>(is=>'rw');
-
 package Parse::Token::Simple;
 use Moo;
 use Data::Dump;
@@ -27,17 +15,19 @@ has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
 	use Parse::Token::Simple;
 
 	my %rules = (
-		{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
-		{ name=>'STR', re=> qr/\w+/ },
-		{ name=>'SPC', re=> qr/\s+/ },
-		{ name=>'ERR', re=> qr/.*/ },
+		MAIN=>[
+			{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
+			{ name=>'STR', re=> qr/\w+/ },
+			{ name=>'SPC', re=> qr/\s+/ },
+			{ name=>'ERR', re=> qr/.*/ },
+		],
 	);
 
 	my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
 	$parser->from("This costs 1,000won.");
 	while( ! $parser->eof ){
 		my ($token,@extra) = $parser->nextToken;
-		print $token->rule->name." --> ".$token->data."<--\n";
+		print $token->rule->name."-->".$token->data."<--\n";
 	}
 
 Results are
@@ -146,4 +136,18 @@ sub state{
 	return '' if( @{$self->state_stack} == 0 );
 	return $self->state_stack->[@{$self->state_stack}-1];
 }
+
+package Parse::Token::Simple::Rule;
+use Moo;
+has name=>(is=>'rw');
+has re=>(is=>'rw', required=>1);
+has func=>(is=>'rw');
+has state=>(is=>'rw');
+
+package Parse::Token::Simple::Token;
+use Moo;
+has data=>(is=>'rw');
+has rule=>(is=>'rw');
+
+
 1;

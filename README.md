@@ -1,6 +1,6 @@
 # NAME
 
-Parse::Token::Simple::Rule - Simply parse String into tokens with rules which are similar to Lex.
+Parse::Token::Simple - Simply parse String into tokens with rules which are similar to Lex.
 
 # VERSION
 
@@ -11,10 +11,12 @@ version 0.001
 	use Parse::Token::Simple;
 
 	my %rules = (
-		{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
-		{ name=>'STR', re=> qr/\w+/ },
-		{ name=>'SPC', re=> qr/\s+/ },
-		{ name=>'ERR', re=> qr/.*/ },
+		MAIN=>[
+			{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
+			{ name=>'STR', re=> qr/\w+/ },
+			{ name=>'SPC', re=> qr/\s+/ },
+			{ name=>'ERR', re=> qr/.*/ },
+		],
 	);
 
 	my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
