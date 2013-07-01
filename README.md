@@ -93,6 +93,35 @@ Returns an array reference of rules of current state.
 
 ## nextToken()
 
+On Scalar context : Returns [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) object.
+On Array context : Returns [Parse::Token::Simple::Token](http://search.cpan.org/perldoc?Parse::Token::Simple::Token) object and return values of callback function defined in current Rule.
+
+	my ($token, @ret) = $parser->nextToken;
+	print $token->rule->name . '->' . $token->data . "\n";
+
+## eof()
+
+Returns 1 when no more text is.
+
+## start($state)
+
+Push the state on state\_stack.
+
+Also, this is called by a 'state' definition of [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
+
+## end()
+=head2 end($state)
+
+Pop the state on state\_stack.
+
+Also, this is called by a 'state' definition of [Parse::Token::Simple::Rule](http://search.cpan.org/perldoc?Parse::Token::Simple::Rule).
+
+$state is optional.
+
+## state()
+
+Returns current state by peeking top of 'state\_stack'.
+
 # AUTHOR
 
 khs <sng2nara@gmail.com>
