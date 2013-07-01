@@ -5,7 +5,7 @@ use Test::More tests => 6;                      # last test to print
 use Data::Printer;
 
 BEGIN{
-	use_ok("Parse::Token::Simple");
+	use_ok("Parse::Token::Lite");
 }
 
 
@@ -25,7 +25,7 @@ my %rules = (
     ]
 );
 
-my $lexer = Parse::Token::Simple->new(rulemap=>\%rules);
+my $lexer = Parse::Token::Lite->new(rulemap=>\%rules);
 eval{ 
 	$lexer->from(q{$a=2;$b=3;});
 };

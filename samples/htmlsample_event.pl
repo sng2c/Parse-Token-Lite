@@ -1,6 +1,6 @@
 #!/usr/bin/env perl 
 use lib './lib','../lib';
-use Parse::Token::Simple;
+use Parse::Token::Lite;
 
 my %rules = (
     MAIN=>[
@@ -51,7 +51,7 @@ sub show{
 	print $token->rule->name." : ".$token->data."\n";
 }
 
-my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
+my $parser = Parse::Token::Lite->new(rulemap=>\%rules);
 $parser->from($html);
 
 $parser->parse;

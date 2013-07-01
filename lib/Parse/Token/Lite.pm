@@ -1,9 +1,9 @@
-package Parse::Token::Simple;
+package Parse::Token::Lite;
 use Moo;
 use Data::Dump;
 use Log::Log4perl qw(:easy);
-use Parse::Token::Simple::Token;
-use Parse::Token::Simple::Rule;
+use Parse::Token::Lite::Token;
+use Parse::Token::Lite::Rule;
 Log::Log4perl->easy_init($ERROR);
 
 # VERSION
@@ -11,7 +11,7 @@ Log::Log4perl->easy_init($ERROR);
 
 =head1 SYNOPSIS
 
-	use Parse::Token::Simple;
+	use Parse::Token::Lite;
 
 	my %rules = (
 		MAIN=>[
@@ -22,7 +22,7 @@ Log::Log4perl->easy_init($ERROR);
 		],
 	);
 
-	my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
+	my $parser = Parse::Token::Lite->new(rulemap=>\%rules);
 	$parser->from("This costs 1,000won.");
 	while( ! $parser->eof ){
 		my ($token,@extra) = $parser->nextToken;
@@ -51,19 +51,19 @@ rulemap should have 'MAIN' item.
 
 	my %rule = (
 		MAIN => [
-			Parse::Token::Simple::Rule->new(name=>'any', re=>qr/./),
+			Parse::Token::Lite::Rule->new(name=>'any', re=>qr/./),
 		],
 	);
 	$parser->rulemap(\%rule);
 
-In constructor, it can be replaced with hash reference descripting attributes of L<Parse::Token::Simple::Rule> class, intead of Rule Object.
+In constructor, it can be replaced with hash reference descripting attributes of L<Parse::Token::Lite::Rule> class, intead of Rule Object.
 
 	my %rule = (
 		MAIN => [
 			{name=>'any', re=>qr/./}, # ditto
 		],
 	);
-	my $parser = Parse::Token::Simple->new( rulemap=>\%rule );
+	my $parser = Parse::Token::Lite->new( rulemap=>\%rule );
 
 =cut
 
@@ -94,7 +94,7 @@ sub BUILD{
 	my $self = shift;
     my %rulemap;
 	foreach my $key (keys %{$self->rulemap}){
-        $self->rulemap->{$key} = [map{ Parse::Token::Simple::Rule->new($_) }@{$self->rulemap->{$key}}];
+        $self->rulemap->{$key} = [map{ Parse::Token::Lite::Rule->new($_) }@{$self->rulemap->{$key}}];
 	}
 }
 
@@ -123,7 +123,7 @@ sub from{
 =head2 parse($data)
 
 On Scalar context : Returns 1
-On Array context : Returns array of [L<Parse::Token::Simple::Token>,@return_values_of_callback].
+On Array context : Returns array of [L<Parse::Token::Lite::Token>,@return_values_of_callback].
 
 Parse all tokens on Event driven.
 Just call nextToken() during that eof() is not 1.
@@ -152,7 +152,7 @@ sub parse{
 
 Returns an array reference of rules of current state. 
 
-See L<Parse::Token::Simple::Rule>.
+See L<Parse::Token::Lite::Rule>.
 
 =cut
 
@@ -163,13 +163,13 @@ sub currentRules{
 
 =head2 nextToken()
 
-On Scalar context : Returns L<Parse::Token::Simple::Token> object.
-On Array context : Returns (L<Parse::Token::Simple::Token>,@return_values_of_callback).
+On Scalar context : Returns L<Parse::Token::Lite::Token> object.
+On Array context : Returns (L<Parse::Token::Lite::Token>,@return_values_of_callback).
 
 	my ($token, @ret) = $parser->nextToken;
 	print $token->rule->name . '->' . $token->data . "\n";
 
-See L<Parse::Token::Simple::Token> and L<Parse::Token::Simple::Rule>.
+See L<Parse::Token::Lite::Token> and L<Parse::Token::Lite::Rule>.
 
 =cut
 
@@ -196,7 +196,7 @@ sub nextToken{
                 }
             } (@{$rule->state}) if $rule->state;
 			
-            my $ret = Parse::Token::Simple::Token->new(rule=>$rule,data=>$&);
+            my $ret = Parse::Token::Lite::Token->new(rule=>$rule,data=>$&);
             
 			my @funcret;
 			if( $rule->func ){
@@ -234,7 +234,7 @@ sub eof{
 
 Push/Pop the state on state_stack to implement AUTOMATA.
 
-Also, this is called by a 'state' definition of L<Parse::Token::Simple::Rule>.
+Also, this is called by a 'state' definition of L<Parse::Token::Lite::Rule>.
 
 You can set rules as Lexer like.
 
@@ -303,7 +303,7 @@ sub state{
 
 =head1 SEE ALSO
 
-See L<Parse::Token::Simple::Token> and L<Parse::Token::Simple::Rule>.
+See L<Parse::Token::Lite::Token> and L<Parse::Token::Lite::Rule>.
 
 =cut 
 

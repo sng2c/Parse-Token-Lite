@@ -1,6 +1,6 @@
 #!/usr/bin/env perl 
 use lib './lib','../lib';
-use Parse::Token::Simple;
+use Parse::Token::Lite;
 
 use Log::Log4perl qw(:easy);
 Log::Log4perl->easy_init($ERROR);
@@ -48,7 +48,7 @@ my $html = <<END;
 </html>
 END
 
-my $parser = Parse::Token::Simple->new(rulemap=>\%rules);
+my $parser = Parse::Token::Lite->new(rulemap=>\%rules);
 $parser->from($html);
 while( ! $parser->eof ){
     my $token = $parser->nextToken;

@@ -1,4 +1,4 @@
-package Parse::Token::Simple::Token;
+package Parse::Token::Lite::Token;
 use Moo;
 
 # VERSION

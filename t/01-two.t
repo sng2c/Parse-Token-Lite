@@ -5,7 +5,7 @@ use Test::More  tests => 11;                      # last test to print
 use Data::Printer;
 
 BEGIN{
-	use_ok("Parse::Token::Simple");
+	use_ok("Parse::Token::Lite");
 }
 
 
@@ -16,7 +16,7 @@ my $rulemap = {
     ]
 };
 
-my $lexer = Parse::Token::Simple->new(rulemap=>$rulemap);
+my $lexer = Parse::Token::Lite->new(rulemap=>$rulemap);
 eval{ 
 	$lexer->from("hello world");
 };

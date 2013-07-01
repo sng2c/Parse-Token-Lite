@@ -1,4 +1,4 @@
-package Parse::Token::Simple::Rule;
+package Parse::Token::Lite::Rule;
 use Moo;
 
 # VERSION
@@ -33,7 +33,7 @@ A callback function for beging executed after re matching.
 		return @somevalues;
 	}
 
-The return values are passed by L<Parse::Token::Simple>::nextToken(), after token object.
+The return values are passed by L<Parse::Token::Lite>::nextToken(), after token object.
 
 =cut
 
