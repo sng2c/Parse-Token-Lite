@@ -168,6 +168,8 @@ Returns current state by peeking top of 'state\_stack'.
 
 See [Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token) and [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule).
 
+And see 'samples' directory in source.
+
 # AUTHOR
 
 khs <sng2nara@gmail.com>

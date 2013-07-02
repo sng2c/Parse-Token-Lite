@@ -305,6 +305,8 @@ sub state{
 
 See L<Parse::Token::Lite::Token> and L<Parse::Token::Lite::Rule>.
 
+And see 'samples' directory in source.
+
 =cut 
 
 1;
