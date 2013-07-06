@@ -4,7 +4,7 @@ Parse::Token::Lite - Simply parse String into tokens with rules which are simila
 
 # VERSION
 
-version 0.110
+version 0.120
 
 # SYNOPSIS
 

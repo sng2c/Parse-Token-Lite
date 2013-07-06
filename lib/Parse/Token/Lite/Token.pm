@@ -22,7 +22,10 @@ returns current matched rule.
 
 has rule=>(is=>'rw');
 
-
+sub as_string{
+  my ($self) = @_;
+  return $self->data;
+}
 
 
 1;
