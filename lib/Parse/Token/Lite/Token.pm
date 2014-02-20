@@ -1,5 +1,5 @@
 package Parse::Token::Lite::Token;
-use Moo;
+use Moose;
 
 # VERSION
 # ABSTRACT: Token class

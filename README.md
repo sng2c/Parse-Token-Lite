@@ -8,33 +8,33 @@ version 0.120
 
 # SYNOPSIS
 
-	use Parse::Token::Lite;
+        use Parse::Token::Lite;
 
-	my %rules = (
-		MAIN=>[
-			{ name=>'NUM', re=> qr/\d[\d,\.]*/ },
-			{ name=>'STR', re=> qr/\w+/ },
-			{ name=>'SPC', re=> qr/\s+/ },
-			{ name=>'ERR', re=> qr/.*/ },
-		],
-	);
+        my %rules = (
+                MAIN=>[
+                        { name=>'NUM', re=> qr/\d[\d,\.]*/ },
+                        { name=>'STR', re=> qr/\w+/ },
+                        { name=>'SPC', re=> qr/\s+/ },
+                        { name=>'ERR', re=> qr/.*/ },
+                ],
+        );
 
-	my $parser = Parse::Token::Lite->new(rulemap=>\%rules);
-	$parser->from("This costs 1,000won.");
-	while( ! $parser->eof ){
-		my ($token,@extra) = $parser->nextToken;
-		print $token->rule->name."-->".$token->data."<--\n";
-	}
+        my $parser = Parse::Token::Lite->new(rulemap=>\%rules);
+        $parser->from("This costs 1,000won.");
+        while( ! $parser->eof ){
+                my ($token,@extra) = $parser->nextToken;
+                print $token->rule->name."-->".$token->data."<--\n";
+        }
 
 Results are
 
-	STR -->This<--
-	SPC --> <--
-	STR -->costs<--
-	SPC --> <--
-	NUM -->1,000<--
-	STR -->won<--
-	ERR -->.<--
+        STR -->This<--
+        SPC --> <--
+        STR -->costs<--
+        SPC --> <--
+        NUM -->1,000<--
+        STR -->won<--
+        ERR -->.<--
 
 # ATTRIBUTES
 
@@ -43,21 +43,21 @@ Results are
 rulemap contains hash refrence of rule objects grouped by STATE.
 rulemap should have 'MAIN' item.
 
-	my %rule = (
-		MAIN => [
-			Parse::Token::Lite::Rule->new(name=>'any', re=>qr/./),
-		],
-	);
-	$parser->rulemap(\%rule);
+        my %rule = (
+                MAIN => [
+                        Parse::Token::Lite::Rule->new(name=>'any', re=>qr/./),
+                ],
+        );
+        $parser->rulemap(\%rule);
 
-In constructor, it can be replaced with hash reference descripting attributes of [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule) class, intead of Rule Object.
+In constructor, it can be replaced with hash reference descripting attributes of [Parse::Token::Lite::Rule](https://metacpan.org/pod/Parse::Token::Lite::Rule) class, intead of Rule Object.
 
-	my %rule = (
-		MAIN => [
-			{name=>'any', re=>qr/./}, # ditto
-		],
-	);
-	my $parser = Parse::Token::Lite->new( rulemap=>\%rule );
+        my %rule = (
+                MAIN => [
+                        {name=>'any', re=>qr/./}, # ditto
+                ],
+        );
+        my $parser = Parse::Token::Lite->new( rulemap=>\%rule );
 
 ## data
 
@@ -85,7 +85,7 @@ This causes resetting state\_stack.
 ## parse($data)
 
 On Scalar context : Returns 1
-On Array context : Returns array of \[[Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token),@return\_values\_of\_callback\].
+On Array context : Returns array of \[[Parse::Token::Lite::Token](https://metacpan.org/pod/Parse::Token::Lite::Token),@return\_values\_of\_callback\].
 
 Parse all tokens on Event driven.
 Just call nextToken() during that eof() is not 1.
@@ -98,17 +98,17 @@ You should set a callback function at 'func' attribute in 'rulemap' to do someth
 
 Returns an array reference of rules of current state. 
 
-See [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule).
+See [Parse::Token::Lite::Rule](https://metacpan.org/pod/Parse::Token::Lite::Rule).
 
 ## nextToken()
 
-On Scalar context : Returns [Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token) object.
-On Array context : Returns ([Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token),@return\_values\_of\_callback).
+On Scalar context : Returns [Parse::Token::Lite::Token](https://metacpan.org/pod/Parse::Token::Lite::Token) object.
+On Array context : Returns ([Parse::Token::Lite::Token](https://metacpan.org/pod/Parse::Token::Lite::Token),@return\_values\_of\_callback).
 
-	my ($token, @ret) = $parser->nextToken;
-	print $token->rule->name . '->' . $token->data . "\n";
+        my ($token, @ret) = $parser->nextToken;
+        print $token->rule->name . '->' . $token->data . "\n";
 
-See [Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token) and [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule).
+See [Parse::Token::Lite::Token](https://metacpan.org/pod/Parse::Token::Lite::Token) and [Parse::Token::Lite::Rule](https://metacpan.org/pod/Parse::Token::Lite::Rule).
 
 ## eof()
 
@@ -122,51 +122,55 @@ Returns 1 when no more text is.
 
 Push/Pop the state on state\_stack to implement AUTOMATA.
 
-Also, this is called by a 'state' definition of [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule).
+Also, this is called by a 'state' definition of [Parse::Token::Lite::Rule](https://metacpan.org/pod/Parse::Token::Lite::Rule).
 
 You can set rules as Lexer like.
 
-	my $rulemap = {
-		MAIN => [
-			{ name=>'QUOTE', re=>qr/'/, func=>
-				sub{ 
-					my ($parser,$token) = @_;
-					$parser->start('STATE_QUOTE'); # push
-				}
-			},
-			{ name=>'ANY', re=>qr/.+/ },
-		],
-		STATE_QUOTE => [
-			{ name=>'QUOTE_PAIR', re=>qr/'/, func=>
-				sub{ 
-					my ($parser,$token) = @_;
-					$parser->end('STATE_QUOTE'); # pop
-				}
-			},
-			{ name=>'QUOTED_TEXT', re=>qr/.+/ }
-		],
-	};
+        my $rulemap = {
+                MAIN => [
+                        { name=>'QUOTE', re=>qr/'/, func=>
+                                sub{ 
+                                        my ($parser,$token) = @_;
+                                        $parser->start('STATE_QUOTE'); # push
+                                }
+                        },
+                        { name=>'ANY', re=>qr/.+/ },
+                ],
+                STATE_QUOTE => [
+                        { name=>'QUOTE_PAIR', re=>qr/'/, func=>
+                                sub{ 
+                                        my ($parser,$token) = @_;
+                                        $parser->end('STATE_QUOTE'); # pop
+                                }
+                        },
+                        { name=>'QUOTED_TEXT', re=>qr/.+/ }
+                ],
+        };
 
 You can also do it in simple way.
 
-	my $rulemap = {
-		MAIN => [
-			{ name=>'QUOTE', re=>qr/'/, state=>['+STATE_QUOTE'] }, # push
-			{ name=>'ANY', re=>qr/.+/ },
-		],
-		STATE_QUOTE => [
-			{ name=>'QUOTE_PAIR', re=>qr/'/, state=>['-STATE_QUOTE] }, #pop
-			{ name=>'QUOTED_TEXT', re=>qr/.+/ }
-		],
-	};
+        my $rulemap = {
+                MAIN => [
+                        { name=>'QUOTE', re=>qr/'/, state=>['+STATE_QUOTE'] }, # push
+                        { name=>'ANY', re=>qr/.+/ },
+                ],
+                STATE_QUOTE => [
+                        { name=>'QUOTE_PAIR', re=>qr/'/, state=>['-STATE_QUOTE] }, #pop
+                        { name=>'QUOTED_TEXT', re=>qr/.+/ }
+                ],
+        };
 
 ## state()
 
 Returns current state by peeking top of 'state\_stack'.
 
+## setFlag()
+
+## resetFlag()
+
 # SEE ALSO
 
-See [Parse::Token::Lite::Token](http://search.cpan.org/perldoc?Parse::Token::Lite::Token) and [Parse::Token::Lite::Rule](http://search.cpan.org/perldoc?Parse::Token::Lite::Rule).
+See [Parse::Token::Lite::Token](https://metacpan.org/pod/Parse::Token::Lite::Token) and [Parse::Token::Lite::Rule](https://metacpan.org/pod/Parse::Token::Lite::Rule).
 
 And see 'samples' directory in source.
 

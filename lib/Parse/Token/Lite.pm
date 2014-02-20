@@ -1,5 +1,5 @@
 package Parse::Token::Lite;
-use Moo;
+use Moose;
 use Data::Dump;
 use Log::Log4perl qw(:easy);
 use Parse::Token::Lite::Token;
@@ -79,7 +79,7 @@ If a length of 'data' is 0, eof() returns 1.
 
 =cut
 
-has data	=> ( is=>'rwp' );
+has data	=> ( is=>'rw' );
 
 =head2 state_stack
 
@@ -88,11 +88,11 @@ It is reset by from().
 
 =cut
 
-has state_stack	=> ( is=>'rwp', default=>sub{['MAIN']} );
+has state_stack	=> ( is=>'rw', default=>sub{[]} );
 
+has rulemap => (is=>'rw', required=>1);
 sub BUILD{
 	my $self = shift;
-    my %rulemap;
 	foreach my $key (keys %{$self->rulemap}){
         $self->rulemap->{$key} = [map{ Parse::Token::Lite::Rule->new($_) }@{$self->rulemap->{$key}}];
 	}
@@ -112,8 +112,8 @@ sub from{
 	my $self = shift;
 	my $data = shift;
 	
-	$self->_set_data($data);
-	$self->_set_state_stack(['MAIN']); # reset state.
+	$self->data($data);
+	$self->state_stack([]); # reset state.
 	
 	return 1;
 }
@@ -180,34 +180,37 @@ sub nextToken{
         my $pat = $rule->re;
 		my $matched = $self->data =~ m/^$pat/s;
 		if( $matched ){
-			$self->_set_data($');
+			my $rest = $';
+			$self->data($rest);
 
-		    map{
-                if( $_ =~ /([+-])(.+)/ ){
-                    if( $1 eq '+' ){
-                        $self->start($2);
-                    }
-                    else{
-                        $self->end($2);
-                    }
-                }
-                else{
-                    die "invalid state_action '$_'";
-                }
-            } (@{$rule->state}) if $rule->state;
+			if( $rule->state ){
+				foreach my $state (@{$rule->state}) {
+					if( $state =~ /([+-])(.+)/ ){
+						if( $1 eq '-' ){
+							$self->end($2);
+						}
+						else{
+							$self->start($2);
+						}
+					}
+					else{
+						die "invalid state_action '$state'";
+					}
+				}
+			}
 			
-            my $ret = Parse::Token::Lite::Token->new(rule=>$rule,data=>$&);
+            my $token = Parse::Token::Lite::Token->new(rule=>$rule,data=>$&);
             
 			my @funcret;
 			if( $rule->func ){
-				@funcret = $rule->func->($self,$ret);
+				@funcret = $rule->func->($self,$token);
 			}
 
             if( wantarray ){
-                return $ret,@funcret;
+                return $token,@funcret;
             }
             else{
-                return $ret;
+                return $token;
             }
 		}
 	}
@@ -278,8 +281,14 @@ You can also do it in simple way.
 sub start{
 	my $self = shift;
 	my $state = shift;
-	DEBUG ">>> START '$state'";
-	push(@{$self->state_stack}, $state);
+	
+	if( $state ne $self->state ){
+		DEBUG ">>> START '$state'";
+		push(@{$self->state_stack}, $state)
+	}
+	else{
+		DEBUG ">>> KEEP  '$state'";
+	}
 }
 
 sub end{
@@ -297,8 +306,36 @@ Returns current state by peeking top of 'state_stack'.
 
 sub state{
 	my $self = shift;
-	return '' if( @{$self->state_stack} == 0 );
+	return 'MAIN' if( @{$self->state_stack} == 0 );
 	return $self->state_stack->[@{$self->state_stack}-1];
+}
+
+has flags => ('is'=>'rw', default=>sub{ return {}; } );
+
+=head2 setFlag()
+
+=cut
+
+sub setFlag{
+	my $self = shift;
+	my $flag = shift;
+	$self->flags->{$flag} = 1;
+}
+
+=head2 resetFlag()
+
+=cut
+
+sub resetFlag{
+	my $self = shift;
+	my $flag = shift;
+	delete( $self->flags->{$flag} );
+}
+
+sub isSetFlag{
+	my $self = shift;
+	my $flag = shift;
+	return defined( $self->flags->{$flag} );
 }
 
 =head1 SEE ALSO

@@ -1,5 +1,5 @@
 package Parse::Token::Lite::Rule;
-use Moo;
+use Moose;
 
 # VERSION
 # ABSTRACT: Rule class
@@ -55,5 +55,10 @@ An action begins '+' or '-'.
 
 =cut
 has state=>(is=>'rw');
+
+
+
+has flags=>(is=>'rw');
+
 
 1;
