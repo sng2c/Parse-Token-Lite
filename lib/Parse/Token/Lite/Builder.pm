@@ -67,6 +67,8 @@ sub ruleset(&){
 
 =pod
 
+=head1 SYNOPSIS
+
 	use Parse::Token::Lite;
 	use Parse::Token::Lite::Builder;
 	use Data::Printer;

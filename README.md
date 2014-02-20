@@ -4,7 +4,7 @@ Parse::Token::Lite - Simply parse String into tokens with rules which are simila
 
 # VERSION
 
-version 0.120
+version 0.200
 
 # SYNOPSIS
 
@@ -163,10 +163,6 @@ You can also do it in simple way.
 ## state()
 
 Returns current state by peeking top of 'state\_stack'.
-
-## setFlag()
-
-## resetFlag()
 
 # SEE ALSO
 

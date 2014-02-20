@@ -312,9 +312,6 @@ sub state{
 
 has flags => ('is'=>'rw', default=>sub{ return {}; } );
 
-=head2 setFlag()
-
-=cut
 
 sub setFlag{
 	my $self = shift;
@@ -322,9 +319,6 @@ sub setFlag{
 	$self->flags->{$flag} = 1;
 }
 
-=head2 resetFlag()
-
-=cut
 
 sub resetFlag{
 	my $self = shift;
