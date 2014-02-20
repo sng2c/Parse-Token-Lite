@@ -6,6 +6,9 @@ use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT = qw(ruleset on name with match start end);
 
+# VERSION
+# ABSTRACT: DSL for Parse::Token::Lite
+
 *_on = sub{ croak 'on'; };
 *_name = sub{ croak 'name'; };
 *_with = sub{ croak 'with'; };
@@ -61,34 +64,30 @@ sub ruleset(&){
 	return $rules;
 }
 1;
+
 =pod
 
-my $ruleset = ruleset{
+	use Parse::Token::Lite;
+	use Parse::Token::Lite::Builder;
+	use Data::Printer;
+	use Data::Dumper;
 
-	match /123/ => sub{
-		name 'BEGIN_NUM';
-		with { my ($parser, $token) = @_;
-
-		};
-		start 'TEST';
-	};
-
-
-
-	on 'TEST' => sub{
-		match /567/ => sub{
-			name 'END_NUM';
-			end 'TEST';
+	my $ruleset = ruleset{
+		match qr/123/ => sub{
+			name 'BEGIN';
+			start 'TEST';
 		};
 
-		match /./ => sub{
-			this_is '4';
-			func {
-				my ($parser,$token) = @_;
-				print $token->data."\n";
+		on 'TEST' => sub{
+			match qr/567/ => sub{
+				name 'END';
+				end 'TEST';
+			};
+
+			match qr/./ => sub{
+				name 'NUM';
 			};
 		};
 	};
-};
 
 =cut
